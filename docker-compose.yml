@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    restart: always
+    volumes:
+      - mysql:/var/lib/mysql
+
+  wordpress:
+    depends_on:
+      - mysql
+    restart: always
+    build: 
+      context: .
+      dockerfile: Dockerfile.wordpress
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - wordpress:/var/www/html
+
+volumes:
+  mysql:
+  wordpress:

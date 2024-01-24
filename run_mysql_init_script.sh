@@ -1,0 +1,1 @@
+mysql -u root -e 'source init.sql'

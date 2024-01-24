@@ -1,0 +1,51 @@
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install required dependencies for Wordpress
+# https://ubuntu.com/tutorials/install-and-configure-wordpress#2-install-dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    apache2 \
+    ghostscript \
+    libapache2-mod-php \
+    php \
+    php-bcmath \
+    php-curl \
+    php-imagick \
+    php-intl \
+    php-json \
+    php-mbstring \
+    php-mysql \
+    php-xml \
+    php-zip \
+    curl \
+    vim
+
+# Download and install WordPress
+RUN mkdir -p /srv/www && \
+    chown www-data: /srv/www && \
+    curl https://wordpress.org/latest.tar.gz | tar zx -C /srv/www
+
+# Enable necessary Apache modules
+RUN a2enmod rewrite
+RUN a2enmod ssl
+
+# Set up a virtual host for Apache
+COPY wordpress.conf /etc/apache2/sites-available/wordpress.conf
+
+# Enable the WordPress site
+RUN a2ensite wordpress
+
+# Disable the default site
+RUN a2dissite 000-default
+
+COPY wp-config.php /srv/www/wordpress/wp-config.php
+COPY localhost.crt /etc/ssl/certs/localhost.crt
+COPY localhost.key /etc/ssl/private/localhost.key
+
+EXPOSE 80
+EXPOSE 443
+
+# Start Apache
+CMD ["apache2ctl", "-D", "FOREGROUND"]

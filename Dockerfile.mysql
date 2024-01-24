@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    mysql-server && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+COPY init.sql /init.sql
+
+EXPOSE 3306
+
+COPY run_mysql_init_script.sh /run_mysql_init_script.sh
+
+RUN chmod +x run_mysql_init_script.sh
+
+CMD ["mysqld"]
